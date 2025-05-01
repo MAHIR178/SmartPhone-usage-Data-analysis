@@ -1,0 +1,429 @@
+---
+title: "Mid-Project Group 3"
+output: html_notebook
+---
+```{r}
+# Read CSV from a URL
+
+# Import the dataset from Google Drive
+url <- "https://drive.google.com/uc?export=download&id=1d8bEgUisDBY-2qC9Csy4qm3d_th_l9PN"
+df <- read.csv(url, na.strings = c("NA", "", "NULL"))
+
+# View the first few rows of the dataframe to check the import
+head(df)
+
+
+
+```
+```{r}
+#View the summary of the dataset
+summary(df)
+```
+## Data Exploration
+Univariate Analysis
+
+
+HISTOGRAM (NUMERIC)
+
+```{r}
+# Histogram of Screen time hours
+hist(df$screen_time_hours, 
+     main="Histogram of screen time hour", 
+     col="cyan", 
+     xlab="Screen time hour", 
+     border="black")
+```
+
+Observation: Most users had screen time between 3 and 8 hours. Few users had very high usage above 10 hours.
+
+```{r}
+# Histogram of   bedtime_hour
+hist(df$  bedtime_hour, 
+     main="Histogram of bedtime hour", 
+     col="cyan", 
+     xlab="Bedtime Hour", 
+     border="black")
+```
+Observation: Most people sleep 6–8 hours, some less than 5 or more than 9 
+
+```{r}
+# Histogram of age 
+hist(df$   age , 
+     main="Histogram of age ", 
+     col="cyan", 
+     xlab="Age", 
+     border="black")
+
+```
+
+the most common users are around age of 18
+
+
+```{r}
+ # Density Plot
+plot (density(df$  screen_time_hours), 
+     main="Density Plot of screen_time_hours", 
+     col="GREEN", 
+     lwd=3)
+```
+peaks around 5–7 hours
+
+```{r}
+# Density Plot
+plot(density(df$bedtime_hour), 
+     main="Density Plot of bedtime_hour", 
+     col="BLUE", 
+     lwd=3)
+```
+Peak around 22:00 
+
+```{r}
+# Density Plot
+plot(density(df$age), 
+     main="Density Plot of age", 
+     col="green", 
+     lwd=3)
+#
+```
+Most common user are between age of 20 to 25
+
+
+```{r}
+# Boxplot
+boxplot(df$age, 
+        main="Box Plot of age", 
+        col="cyan")
+```
+Mostly normal, no outliers spotted
+
+```{r}
+# Boxplot
+boxplot(df$screen_time_hours, 
+        main="Box Plot of screen_time_hours", 
+        col="cyan")
+```
+Outliers exist (high screen time)
+
+```{r}
+boxplot(df$bedtime_hour, 
+        main="Box Plot of bedtime_hour", 
+        col="cyan")
+```
+Mostly normal, no outliers spotted
+
+Exploring Categorical Data
+```{r}
+ #Count 
+table(df$app_type_most_used)
+```
+
+```{r}
+#Count of Home Country
+table(df$stress_level)
+```
+
+
+```{r}
+# Bar plot
+barplot(table(df$app_type_most_used), 
+        main="Count of app_type_most_used", 
+        col=c("cyan", "green"))
+```
+#Educational apps are most used then gaming and utility respectively
+
+```{r}
+# Bar plot 
+barplot(table(df$stress_level), 
+        main="Count of stress_level", 
+        col=c("cyan","red", "green"))
+
+```
+Stress level moderate is highly distributed 
+
+
+
+Multivariate plots
+
+Scatter plot, pair plot and correlation matrix have been displayed to observe different result
+
+```{r}
+plot(df$age, df$screen_time_hours,
+     main = "Scatter Plot of Age vs Screen Time",
+     xlab = "Age",
+     ylab = "Screen Time (Hours)",
+     col = "blue",
+     pch = 16)
+```
+
+outliers spotted here
+
+
+```{r}
+plot(df$age, df$bedtime_hour,
+     main = "Scatter Plot of Age vs Bedtime Hour",
+     xlab = "Age",
+     ylab = "Bedtime Hour",
+     col = "darkgreen",
+     pch = 16)
+```
+
+
+```{r}
+plot(df$screen_time_hours, df$bedtime_hour,
+     main = "Scatter Plot of Screen Time vs Bedtime Hour",
+     xlab = "Screen Time (Hours)",
+     ylab = "Bedtime Hour",
+     col = "purple",
+     pch = 16)
+
+```
+
+More screen time is basically high bed time hour
+
+Box Plot (Numeric vs. Categorical)
+```{r}
+boxplot(bedtime_hour
+ ~ stress_level, data=df,
+        main="Box Plot of Bed time hour by stress label",
+        col=c("green", "red"))
+```
+
+```{r}
+boxplot(screen_time_hours ~ stress_level, data=df,
+        main="Box Plot of Screen time  hour by stress_level",
+        col=c("green", "red"))
+```
+In this Box plot more outliers were spotted in moderate stress level.
+
+
+##Check for missing values
+```{r}
+is.na(df)
+```
+Count missing values per column
+```{r}
+colSums(is.na(df))
+```
+Check total missing values
+```{r}
+sum(is.na(df))
+```
+250 missing values observed
+Replace NA with the Median of the Column 1,2,3
+```{r}
+# Replace NA with the Median of each column
+df$screen_time_hours[is.na(df$screen_time_hours)] <- median(df$screen_time_hours, na.rm = TRUE)
+df$bedtime_hour[is.na(df$bedtime_hour)] <- median(df$bedtime_hour, na.rm = TRUE)
+df$age[is.na(df$age)] <- median(df$age, na.rm = TRUE)
+
+# Print the updated dataframe
+print(df[c("screen_time_hours", "bedtime_hour", "age")])
+
+
+```
+
+Replace Categorical column app_type_most_used NA with Mode
+```{r}
+# Replace missing values in 'app_type_most_used' with the mode
+df$app_type_most_used[is.na(df$app_type_most_used)] <- 
+  names(sort(table(df$app_type_most_used), decreasing = TRUE))[1]
+
+# Print only the 'app_type_most_used' column
+print(df[c("app_type_most_used")])
+```
+
+Remove rows of missing values in Target column stress_level
+
+```{r}
+# Remove rows where 'stress_level' is NA
+df <- subset(df, !is.na(stress_level))
+
+
+# Print the 'stress_level' column as part of the data frame
+print(df[c("stress_level")])
+
+
+```
+```{r}
+# Check for missing values in the final dataset (df)
+missing_values <- sum(is.na(df))
+
+# Print the result
+if(missing_values > 0) {
+  cat("There are", missing_values, "missing values in the dataset.\n")
+} else {
+  cat("No missing values in the dataset.\n")
+}
+
+```
+
+```{r}
+
+class(df)
+
+
+```
+
+
+
+```{r}
+# Correlation matrix
+correlation_matrix <- cor(df[, c("screen_time_hours", "bedtime_hour", "age")], use = "complete.obs")
+print(correlation_matrix)
+
+```
+
+```{r}
+# Subset the numerical columns and calculate the correlation matrix
+correlation_matrix <- cor(df[, c("screen_time_hours", "bedtime_hour", "age")], use = "complete.obs")
+
+# Print the correlation matrix
+print(correlation_matrix)
+
+# Plot the correlation matrix using corrplot
+library(corrplot)
+corrplot(correlation_matrix, method = "circle")
+
+```
+Pair plot of numerical columns
+
+```{r}
+# Load the GGally package for pair plots
+library(GGally)
+
+# Create the pair plot with color by 'stress_level' (target categorical variable)
+ggpairs(df[, c("screen_time_hours", "bedtime_hour", "age")], aes(color = df$stress_level))
+
+
+
+```
+```{r}
+# Check for missing values in the final dataset (df)
+missing_values <- sum(is.na(df))
+
+# Print the result
+if(missing_values > 0) {
+  cat("There are", missing_values, "missing values in the dataset.\n")
+} else {
+  cat("No missing values in the dataset.\n")
+}
+
+```
+
+
+
+
+
+##Data type conversion using label coding
+
+```{r}
+
+
+
+
+
+# Label encoding for 'app_type_most_used' (Nominal)
+df$app_type_most_used_encoded <- as.integer(factor(df$app_type_most_used))
+
+# Label encoding for 'stress_level' (Ordinal)
+df$stress_level_encoded <- as.integer(factor(df$stress_level))
+
+# Print the encoded columns to verify
+print(df[c("app_type_most_used_encoded", "stress_level_encoded")])
+
+
+
+
+```
+
+
+
+
+##Outlier detection and capping using IQR method
+
+
+```{r}
+# Function to detect outliers using IQR and return bounds
+detect_outliers <- function(x) {
+  Q1 <- quantile(x, 0.25, na.rm = TRUE)
+  Q3 <- quantile(x, 0.75, na.rm = TRUE)
+  IQR_value <- Q3 - Q1
+  lower_bound <- Q1 - 1.5 * IQR_value
+  upper_bound <- Q3 + 1.5 * IQR_value
+  
+  # Return a list with outlier detection and bounds
+  return(list(outliers = x < lower_bound | x > upper_bound,
+              lower_bound = lower_bound,
+              upper_bound = upper_bound))
+}
+
+# Detect outliers for each column and get bounds
+screen_time_outliers <- detect_outliers(df$screen_time_hours)
+bedtime_outliers <- detect_outliers(df$bedtime_hour)
+age_outliers <- detect_outliers(df$age)
+
+# Count the number of outliers for each column
+outliers_screen_time_count <- sum(screen_time_outliers$outliers)
+outliers_bedtime_count <- sum(bedtime_outliers$outliers)
+outliers_age_count <- sum(age_outliers$outliers)
+
+# Print the count of outliers in each column
+print(paste("Number of outliers in screen_time_hours: ", outliers_screen_time_count))
+print(paste("Number of outliers in bedtime_hour: ", outliers_bedtime_count))
+print(paste("Number of outliers in age: ", outliers_age_count))
+
+# Replace outliers with bounds for 'screen_time_hours'
+df$screen_time_hours[df$screen_time_hours < screen_time_outliers$lower_bound] <- screen_time_outliers$lower_bound
+df$screen_time_hours[df$screen_time_hours > screen_time_outliers$upper_bound] <- screen_time_outliers$upper_bound
+
+# Print outliers for 'screen_time_hours' column
+print(df$screen_time_hours[screen_time_outliers$outliers])
+
+```
+
+
+
+
+##Data transformation (scaling)
+
+
+```{r}
+# Scale the numerical columns: screen_time_hours, bedtime_hour, and age
+df$screen_time_hours_scaled <- scale(df$screen_time_hours)
+df$bedtime_hour_scaled <- scale(df$bedtime_hour)
+df$age_scaled <- scale(df$age)
+
+# Print the first few rows of the scaled data
+print(df[, c("screen_time_hours_scaled", "bedtime_hour_scaled", "age_scaled")])
+
+```
+##New Dataset after preprocessing 
+```{r}
+# Remove the specified columns from the dataframe
+df_new <- df[, !names(df) %in% c("screen_time_hours", "bedtime_hour", "age", "screen_time_hours_capped", 
+                                 "app_type_most_used", "stress_level")]
+
+# Print the cleaned dataframe
+print(df_new)
+
+
+
+```
+```{r}
+# Check for missing values in the final dataset (df)
+missing_values <- sum(is.na(df))
+
+# Print the result
+if(missing_values > 0) {
+  cat("There are", missing_values, "missing values in the dataset.\n")
+} else {
+  cat("No missing values in the dataset.\n")
+}
+
+```
+Recheked again and ensured My dataset has no missing values. All coloumns are properly encoded and removed outliers and scaled.
+
+
+
+```
+
